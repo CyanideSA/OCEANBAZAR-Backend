@@ -27,14 +27,23 @@ public class DataSeeder {
     @Bean
     CommandLineRunner seedData() {
         return args -> {
-            ensurePrimaryAdminLogin();
+            try {
+                ensurePrimaryAdminLogin();
+            } catch (Exception ex) {
+                log.warn("DataSeeder.ensurePrimaryAdminLogin skipped — admin_users table may not yet exist: {}", ex.getMessage());
+                return;
+            }
 
             if (!seedEnabled) {
                 log.info("Seed skipped (app.seed=false).");
                 return;
             }
 
-            seedDefaultAdminAndAgents();
+            try {
+                seedDefaultAdminAndAgents();
+            } catch (Exception ex) {
+                log.warn("DataSeeder.seedDefaultAdminAndAgents skipped: {}", ex.getMessage());
+            }
         };
     }
 
