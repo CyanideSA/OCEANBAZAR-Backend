@@ -54,9 +54,9 @@ services:
       - key: CACHE_TYPE
         value: simple
       - key: CORS_ALLOWED_ORIGINS
-        value: https://oceanbazarstorefront.vercel.app,https://<admin>.onrender.com
+        value: https://oceanbazarstorefront.vercel.app,https://oceanbazar-frontend-admin.vercel.app
       - key: WEBSOCKET_ALLOWED_ORIGINS
-        value: https://oceanbazarstorefront.vercel.app,https://<admin>.onrender.com
+        value: https://oceanbazarstorefront.vercel.app,https://oceanbazar-frontend-admin.vercel.app
       - key: WEBSOCKET_ALLOWED_ORIGIN_PATTERNS
         value: https://*.vercel.app,https://*.onrender.com
       - key: CLOUDINARY_CLOUD_NAME
