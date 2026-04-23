@@ -13,7 +13,7 @@ services:
 
   - type: web
     name: oceanbazar-java-api
-    runtime: docker
+    env: docker
     repo: https://github.com/CyanideSA/OCEANBAZAR-Backend
     rootDir: backend-java
     plan: starter
@@ -55,7 +55,7 @@ services:
 
   - type: web
     name: oceanbazar-bff
-    runtime: node
+    env: node
     repo: https://github.com/CyanideSA/OCEANBAZAR-Backend
     rootDir: backend
     plan: starter
@@ -119,7 +119,8 @@ services:
       - key: EMAIL_FROM
         value: Oceanbazar <noreply@oceanbazar.com>
 
-  - type: static
+  - type: web
+    env: static
     name: oceanbazar-admin-crm
     repo: https://github.com/CyanideSA/OCEANBAZAR-Frontend-Admin
     rootDir: admin-frontend-react
