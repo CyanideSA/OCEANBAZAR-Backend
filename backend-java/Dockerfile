@@ -11,5 +11,5 @@ RUN mvn -B -DskipTests clean package \
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/application.jar app.jar
-# Shell form so $PORT is expanded at container start
-CMD java -jar app.jar --server.port=$PORT
+# Shell form so $PORT is expanded at container start (fallback keeps startup safe)
+CMD sh -c 'java -jar app.jar --server.port=${PORT:-10000}'
