@@ -2,7 +2,7 @@ databases:
   - name: oceanbazar-postgres
     databaseName: oceanbazar
     user: oceanbazar
-    plan: starter
+    plan: basic-256mb
 
 services:
   - type: redis
