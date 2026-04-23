@@ -83,7 +83,7 @@ services:
       - key: CLIENT_URL
         value: https://oceanbazarstorefront.vercel.app
       - key: ADMIN_URL
-        value: https://<admin>.onrender.com
+        value: https://oceanbazar-frontend-admin.vercel.app
       - key: JAVA_API_URL
         value: https://<java-service>.onrender.com
       - key: DATABASE_URL
