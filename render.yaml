@@ -1,64 +1,48 @@
-databases:
-  - name: oceanbazar-postgres
-    databaseName: oceanbazar
-    user: oceanbazar
-    plan: basic-256mb
-
 services:
-  - type: redis
-    name: oceanbazar-redis
-    plan: starter
-    ipAllowList: []
-    maxmemoryPolicy: allkeys-lru
-
   - type: web
     name: oceanbazar-java-api
     env: docker
     repo: https://github.com/CyanideSA/OCEANBAZAR-Backend
     rootDir: backend-java
-    plan: starter
+    plan: free
     autoDeploy: true
     healthCheckPath: /actuator/health
     envVars:
       - key: SERVER_PORT
         value: 10000
       - key: DATABASE_URL
-        value: jdbc:postgresql://<RENDER_PG_HOST>:5432/oceanbazar
+        value: jdbc:postgresql://<NEON_HOST>/<DB_NAME>?sslmode=require
       - key: DB_USER
-        value: oceanbazar
+        value: <NEON_USER>
       - key: DB_PASSWORD
-        value: <RENDER_PG_PASSWORD>
-      - key: REDIS_HOST
-        value: <RENDER_REDIS_HOST>
-      - key: REDIS_PORT
-        value: <RENDER_REDIS_PORT>
-      - key: REDIS_PASSWORD
-        sync: false
+        value: <NEON_PASSWORD>
       - key: JWT_SECRET_KEY
-        sync: false
+        value: change_me_java_jwt_secret_min_32_chars
       - key: PUBLIC_BASE_URL
-        value: https://oceanbazar-java-api.onrender.com
+        value: https://<java-service>.onrender.com
       - key: UPLOAD_DIR
         value: /tmp/uploads
+      - key: CACHE_TYPE
+        value: simple
       - key: CORS_ALLOWED_ORIGINS
-        value: https://<storefront-vercel-domain>,https://<admin-render-domain>
+        value: https://<storefront>.vercel.app,https://<admin>.onrender.com
       - key: WEBSOCKET_ALLOWED_ORIGINS
-        value: https://<storefront-vercel-domain>,https://<admin-render-domain>
+        value: https://<storefront>.vercel.app,https://<admin>.onrender.com
       - key: WEBSOCKET_ALLOWED_ORIGIN_PATTERNS
         value: https://*.vercel.app,https://*.onrender.com
       - key: CLOUDINARY_CLOUD_NAME
-        sync: false
+        value: <CLOUDINARY_CLOUD_NAME>
       - key: CLOUDINARY_API_KEY
-        sync: false
+        value: <CLOUDINARY_API_KEY>
       - key: CLOUDINARY_API_SECRET
-        sync: false
+        value: <CLOUDINARY_API_SECRET>
 
   - type: web
     name: oceanbazar-bff
     env: node
     repo: https://github.com/CyanideSA/OCEANBAZAR-Backend
     rootDir: backend
-    plan: starter
+    plan: free
     autoDeploy: true
     healthCheckPath: /api/health
     buildCommand: npm ci && npm run db:generate && npm run build
@@ -69,19 +53,17 @@ services:
       - key: PORT
         value: 10000
       - key: CLIENT_URL
-        value: https://<storefront-vercel-domain>
+        value: https://<storefront>.vercel.app
       - key: ADMIN_URL
-        value: https://<admin-render-domain>
+        value: https://<admin>.onrender.com
       - key: JAVA_API_URL
-        value: https://oceanbazar-java-api.onrender.com
+        value: https://<java-service>.onrender.com
       - key: DATABASE_URL
-        sync: false
-      - key: REDIS_URL
-        sync: false
+        value: postgresql://<NEON_USER>:<NEON_PASSWORD>@<NEON_HOST>/<DB_NAME>?sslmode=require
       - key: JWT_ACCESS_SECRET
-        sync: false
+        value: change_me_bff_access_secret_min_32_chars
       - key: JWT_REFRESH_SECRET
-        sync: false
+        value: change_me_bff_refresh_secret_min_32_chars
       - key: JWT_ACCESS_EXPIRES
         value: 15m
       - key: JWT_REFRESH_EXPIRES
@@ -89,33 +71,35 @@ services:
       - key: OTP_EXPIRE_MINUTES
         value: 10
       - key: OTP_TERMINAL_ONLY
+        value: true
+      - key: CART_ABANDONMENT_CRON
         value: false
       - key: UPLOAD_DIR
         value: /tmp/uploads
       - key: PUBLIC_BASE_URL
-        value: https://oceanbazar-bff.onrender.com
+        value: https://<bff-service>.onrender.com
       - key: CLOUDINARY_CLOUD_NAME
-        sync: false
+        value: <CLOUDINARY_CLOUD_NAME>
       - key: CLOUDINARY_API_KEY
-        sync: false
+        value: <CLOUDINARY_API_KEY>
       - key: CLOUDINARY_API_SECRET
-        sync: false
+        value: <CLOUDINARY_API_SECRET>
       - key: FIREBASE_API_KEY
-        sync: false
+        value: <FIREBASE_API_KEY>
       - key: FIREBASE_PROJECT_ID
-        sync: false
+        value: <FIREBASE_PROJECT_ID>
       - key: RECAPTCHA_SITE_KEY
-        sync: false
+        value: <RECAPTCHA_SITE_KEY>
       - key: RECAPTCHA_PROJECT_ID
-        sync: false
+        value: <RECAPTCHA_PROJECT_ID>
       - key: SMTP_HOST
-        sync: false
+        value: <SMTP_HOST_OR_EMPTY>
       - key: SMTP_PORT
         value: "587"
       - key: SMTP_USER
-        sync: false
+        value: <SMTP_USER_OR_EMPTY>
       - key: SMTP_PASS
-        sync: false
+        value: <SMTP_PASS_OR_EMPTY>
       - key: EMAIL_FROM
         value: Oceanbazar <noreply@oceanbazar.com>
 
@@ -129,6 +113,6 @@ services:
     pullRequestPreviewsEnabled: true
     envVars:
       - key: VITE_ADMIN_API_URL
-        value: https://oceanbazar-bff.onrender.com
+        value: https://<bff-service>.onrender.com
       - key: VITE_WS_URL
-        value: https://oceanbazar-java-api.onrender.com
+        value: https://<java-service>.onrender.com
