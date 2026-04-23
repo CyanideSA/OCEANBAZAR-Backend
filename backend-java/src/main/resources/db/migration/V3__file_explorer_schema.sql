@@ -193,91 +193,121 @@ CREATE TABLE product_tags (
 -- ─── 11. Migrate data from legacy tables ────────────────────────────────────
 
 -- 11a. Brands
-INSERT INTO brands (id, name_en, name_bn, slug, logo_url, sort_order, active, created_at, updated_at)
-SELECT id, name_en, name_bn, slug, logo_url, sort_order, active, created_at, updated_at
-FROM brands_legacy
-ON CONFLICT (id) DO NOTHING;
+DO $$
+BEGIN
+  IF to_regclass('public.brands_legacy') IS NOT NULL THEN
+    INSERT INTO brands (id, name_en, name_bn, slug, logo_url, sort_order, active, created_at, updated_at)
+    SELECT id, name_en, name_bn, slug, logo_url, sort_order, active, created_at, updated_at
+    FROM brands_legacy
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+END $$;
 
 -- 11b. Categories (with generated slug, depth=0, path=slug for top-level)
-INSERT INTO categories (id, parent_id, name_en, name_bn, slug, icon, sort_order, depth, path, is_leaf, created_at, updated_at)
-SELECT
-    id,
-    parent_id,
-    name_en,
-    name_bn,
-    LOWER(REGEXP_REPLACE(REGEXP_REPLACE(name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')),
-    icon,
-    COALESCE(sort_order, 0),
-    0,
-    LOWER(REGEXP_REPLACE(REGEXP_REPLACE(name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')),
-    TRUE,
-    COALESCE(created_at, now()),
-    now()
-FROM categories_legacy
-WHERE parent_id IS NULL
-ON CONFLICT (id) DO NOTHING;
+DO $$
+BEGIN
+  IF to_regclass('public.categories_legacy') IS NOT NULL THEN
+    INSERT INTO categories (id, parent_id, name_en, name_bn, slug, icon, sort_order, depth, path, is_leaf, created_at, updated_at)
+    SELECT
+        id,
+        parent_id,
+        name_en,
+        name_bn,
+        LOWER(REGEXP_REPLACE(REGEXP_REPLACE(name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')),
+        icon,
+        COALESCE(sort_order, 0),
+        0,
+        LOWER(REGEXP_REPLACE(REGEXP_REPLACE(name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')),
+        TRUE,
+        COALESCE(created_at, now()),
+        now()
+    FROM categories_legacy
+    WHERE parent_id IS NULL
+    ON CONFLICT (id) DO NOTHING;
 
--- 11b2. Child categories (depth=1)
-INSERT INTO categories (id, parent_id, name_en, name_bn, slug, icon, sort_order, depth, path, is_leaf, created_at, updated_at)
-SELECT
-    c.id,
-    c.parent_id,
-    c.name_en,
-    c.name_bn,
-    LOWER(REGEXP_REPLACE(REGEXP_REPLACE(c.name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')) || '-' || SUBSTRING(c.id, 1, 4),
-    c.icon,
-    COALESCE(c.sort_order, 0),
-    1,
-    COALESCE(p.slug, '') || '/' || LOWER(REGEXP_REPLACE(REGEXP_REPLACE(c.name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')),
-    TRUE,
-    COALESCE(c.created_at, now()),
-    now()
-FROM categories_legacy c
-JOIN categories p ON p.id = c.parent_id
-WHERE c.parent_id IS NOT NULL
-ON CONFLICT (id) DO NOTHING;
+    -- 11b2. Child categories (depth=1)
+    INSERT INTO categories (id, parent_id, name_en, name_bn, slug, icon, sort_order, depth, path, is_leaf, created_at, updated_at)
+    SELECT
+        c.id,
+        c.parent_id,
+        c.name_en,
+        c.name_bn,
+        LOWER(REGEXP_REPLACE(REGEXP_REPLACE(c.name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')) || '-' || SUBSTRING(c.id, 1, 4),
+        c.icon,
+        COALESCE(c.sort_order, 0),
+        1,
+        COALESCE(p.slug, '') || '/' || LOWER(REGEXP_REPLACE(REGEXP_REPLACE(c.name_en, '[^a-zA-Z0-9 ]', '', 'g'), '\s+', '-', 'g')),
+        TRUE,
+        COALESCE(c.created_at, now()),
+        now()
+    FROM categories_legacy c
+    JOIN categories p ON p.id = c.parent_id
+    WHERE c.parent_id IS NOT NULL
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+END $$;
 
 -- Mark parent categories as non-leaf
 UPDATE categories SET is_leaf = FALSE
 WHERE id IN (SELECT DISTINCT parent_id FROM categories WHERE parent_id IS NOT NULL);
 
 -- 11c. Products
-INSERT INTO products (id, category_id, brand_id, seller_id, title_en, title_bn,
-    description_en, description_bn, sku, status, weight, weight_unit, moq, stock,
-    seo_title, seo_description, import_source, specifications, attributes_extra,
-    rating_avg, review_count, brand_logo_url, popularity_rank,
-    popularity_label_en, popularity_label_bn, reviews_snapshot, is_featured,
-    created_at, updated_at)
-SELECT id, category_id, brand_id, seller_id, title_en, title_bn,
-    description_en, description_bn, sku, status::VARCHAR, weight, weight_unit, moq, stock,
-    seo_title, seo_description, import_source, specifications, attributes_extra,
-    rating_avg, review_count, brand_logo_url, popularity_rank,
-    popularity_label_en, popularity_label_bn, reviews_snapshot, is_featured,
-    created_at, updated_at
-FROM products_legacy
-ON CONFLICT (id) DO NOTHING;
+DO $$
+BEGIN
+  IF to_regclass('public.products_legacy') IS NOT NULL THEN
+    INSERT INTO products (id, category_id, brand_id, seller_id, title_en, title_bn,
+        description_en, description_bn, sku, status, weight, weight_unit, moq, stock,
+        seo_title, seo_description, import_source, specifications, attributes_extra,
+        rating_avg, review_count, brand_logo_url, popularity_rank,
+        popularity_label_en, popularity_label_bn, reviews_snapshot, is_featured,
+        created_at, updated_at)
+    SELECT id, category_id, brand_id, seller_id, title_en, title_bn,
+        description_en, description_bn, sku, status::VARCHAR, weight, weight_unit, moq, stock,
+        seo_title, seo_description, import_source, specifications, attributes_extra,
+        rating_avg, review_count, brand_logo_url, popularity_rank,
+        popularity_label_en, popularity_label_bn, reviews_snapshot, is_featured,
+        created_at, updated_at
+    FROM products_legacy
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+END $$;
 
 -- 11d. Product images → product_assets
-INSERT INTO product_assets (product_id, asset_type, url, alt_en, alt_bn, sort_order, is_primary, color_key)
-SELECT product_id, media_type::VARCHAR, url, alt_en, alt_bn, sort_order, is_primary, color_key
-FROM product_images_legacy
-WHERE EXISTS (SELECT 1 FROM products WHERE products.id = product_images_legacy.product_id);
+DO $$
+BEGIN
+  IF to_regclass('public.product_images_legacy') IS NOT NULL THEN
+    INSERT INTO product_assets (product_id, asset_type, url, alt_en, alt_bn, sort_order, is_primary, color_key)
+    SELECT product_id, media_type::VARCHAR, url, alt_en, alt_bn, sort_order, is_primary, color_key
+    FROM product_images_legacy
+    WHERE EXISTS (SELECT 1 FROM products WHERE products.id = product_images_legacy.product_id);
+  END IF;
+END $$;
 
 -- 11e. Product pricing
-INSERT INTO product_pricing (product_id, customer_type, price, compare_at,
-    tier1_min_qty, tier1_discount, tier2_min_qty, tier2_discount, tier3_min_qty, tier3_discount)
-SELECT product_id, customer_type::VARCHAR, price, compare_at,
-    tier1_min_qty, tier1_discount, tier2_min_qty, tier2_discount, tier3_min_qty, tier3_discount
-FROM product_pricing_legacy
-WHERE EXISTS (SELECT 1 FROM products WHERE products.id = product_pricing_legacy.product_id)
-ON CONFLICT (product_id, customer_type) DO NOTHING;
+DO $$
+BEGIN
+  IF to_regclass('public.product_pricing_legacy') IS NOT NULL THEN
+    INSERT INTO product_pricing (product_id, customer_type, price, compare_at,
+        tier1_min_qty, tier1_discount, tier2_min_qty, tier2_discount, tier3_min_qty, tier3_discount)
+    SELECT product_id, customer_type::VARCHAR, price, compare_at,
+        tier1_min_qty, tier1_discount, tier2_min_qty, tier2_discount, tier3_min_qty, tier3_discount
+    FROM product_pricing_legacy
+    WHERE EXISTS (SELECT 1 FROM products WHERE products.id = product_pricing_legacy.product_id)
+    ON CONFLICT (product_id, customer_type) DO NOTHING;
+  END IF;
+END $$;
 
 -- 11f. Product variants
-INSERT INTO product_variants (id, product_id, sku, name_en, name_bn, attributes, price_override, stock, weight, is_active, sort_order)
-SELECT id, product_id, sku, name_en, name_bn, attributes::JSONB, price_override, stock, weight, is_active, sort_order
-FROM product_variants_legacy
-WHERE EXISTS (SELECT 1 FROM products WHERE products.id = product_variants_legacy.product_id)
-ON CONFLICT (id) DO NOTHING;
+DO $$
+BEGIN
+  IF to_regclass('public.product_variants_legacy') IS NOT NULL THEN
+    INSERT INTO product_variants (id, product_id, sku, name_en, name_bn, attributes, price_override, stock, weight, is_active, sort_order)
+    SELECT id, product_id, sku, name_en, name_bn, attributes::JSONB, price_override, stock, weight, is_active, sort_order
+    FROM product_variants_legacy
+    WHERE EXISTS (SELECT 1 FROM products WHERE products.id = product_variants_legacy.product_id)
+    ON CONFLICT (id) DO NOTHING;
+  END IF;
+END $$;
 
 -- 11g. Seed default tag groups
 INSERT INTO tag_groups (name_en, name_bn, slug, sort_order) VALUES
