@@ -3,11 +3,10 @@ services:
     name: oceanbazar-storefront
     env: node
     repo: https://github.com/CyanideSA/OCEANBAZAR-Frontend
-    rootDir: frontend
     plan: free
     autoDeploy: true
     healthCheckPath: /
-    buildCommand: npm ci && npm run build
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_ENV
@@ -69,7 +68,6 @@ services:
     name: oceanbazar-bff
     env: node
     repo: https://github.com/CyanideSA/OCEANBAZAR-Backend
-    rootDir: backend
     plan: free
     autoDeploy: true
     healthCheckPath: /api/health
@@ -135,7 +133,6 @@ services:
     env: static
     name: oceanbazar-admin-crm
     repo: https://github.com/CyanideSA/OCEANBAZAR-Frontend-Admin
-    rootDir: admin-frontend-react
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
     pullRequestPreviewsEnabled: true

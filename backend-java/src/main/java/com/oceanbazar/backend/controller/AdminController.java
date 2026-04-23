@@ -378,7 +378,7 @@ public class AdminController {
         requireAnyRole(authorization, R_ADMIN_UP);
         productRepository.findById(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
-        payload.setId(com.oceanbazar.backend.utils.ShortId.generate());
+        payload.setId(com.oceanbazar.backend.utils.ShortId.newId8());
         payload.setProductId(productId);
         if (payload.getNameEn() == null || payload.getNameEn().isBlank())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nameEn is required");
