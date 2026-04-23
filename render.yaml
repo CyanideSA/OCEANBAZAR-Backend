@@ -86,6 +86,8 @@ services:
         value: https://<java-service>.onrender.com
       - key: DATABASE_URL
         value: postgresql://neondb_owner:<NEON_PASSWORD>@ep-small-sunset-aom3ownz-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+      - key: DIRECT_URL
+        value: postgresql://neondb_owner:<NEON_PASSWORD>@ep-small-sunset-aom3ownz.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
       - key: JWT_ACCESS_SECRET
         value: change_me_bff_access_secret_min_32_chars
       - key: JWT_REFRESH_SECRET
