@@ -5,7 +5,7 @@ This guide covers production deployment for:
 - Admin CRM (`admin-frontend-react`) on Render Static Site
 - Backend BFF (`backend`) on Render Web Service
 - Java API (`backend-java`) on Render Web Service
-- Neon PostgreSQL (external) + optional Redis
+- Neon PostgreSQL (external free tier) + optional Redis
 
 ---
 
@@ -15,7 +15,8 @@ This guide covers production deployment for:
 - Render (Admin CRM): `https://<admin-domain>`
 - Render (BFF): `https://<bff-domain>`
 - Render (Java API): `https://<java-domain>`
-- Neon PostgreSQL (managed externally)
+- Neon PostgreSQL: `ep-small-sunset-aom3ownz.c-2.ap-southeast-1.aws.neon.tech`
+- Optional Redis (Upstash free tier) or run without Redis
 
 ---
 
@@ -96,7 +97,8 @@ ADMIN_URL=https://<admin-domain>
 JAVA_API_URL=https://<java-domain>
 
 DATABASE_URL=postgresql://neondb_owner:<NEON_PASSWORD>@ep-small-sunset-aom3ownz-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
-REDIS_URL=<optional_redis_url>
+# Optional (app can run without Redis)
+# REDIS_URL=<redis_connection_url>
 
 JWT_ACCESS_SECRET=<strong_secret>
 JWT_REFRESH_SECRET=<strong_secret>
@@ -213,7 +215,7 @@ Use this only for controlled initial data.
 - Rotate all secrets before public launch
 - Never commit `.env` files
 - Keep production secrets only in platform env settings
-- Restrict DB/Redis to internal network where possible
+- Keep Neon credentials in Render/Vercel env settings only
 - Enable HTTPS custom domains
 
 ---
